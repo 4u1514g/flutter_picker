@@ -1,15 +1,25 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_picker/src/album_selector.dart';
+import 'package:flutter_picker/src/conversion.dart';
+import 'package:flutter_picker/src/header.dart';
+import 'package:flutter_picker/src/media_list.dart';
+import 'package:flutter_picker/src/media_model.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import 'enums.dart';
 
 class PickerWidget extends StatefulWidget {
   const PickerWidget({
     super.key,
-    this.mediaCount = MediaCount.multiple,
-    this.mediaType = MediaType.all,
+    required this.onPicked,
+    this.mediaCount = MediaCount.single,
+    this.mediaType = MediaType.image,
   });
+
+  ///CallBack on image pick is done
+  final ValueChanged<List<MediaModel>> onPicked;
 
   ///make picker to select multiple or single media file
   final MediaCount mediaCount;
@@ -23,6 +33,8 @@ class PickerWidget extends StatefulWidget {
 
 class _PickerWidgetState extends State<PickerWidget> {
   AssetPathEntity? _selectedAlbum;
+  final _albumController = PanelController();
+  final _headerController = GlobalKey<HeaderState>();
 
   Future<List<AssetPathEntity>> _fetchAlbums() async {
     var type = RequestType.common;
@@ -38,15 +50,15 @@ class _PickerWidgetState extends State<PickerWidget> {
     if (result == PermissionState.authorized || (result == PermissionState.limited)) {
       return await PhotoManager.getAssetPathList(type: type);
     } else {
-      PhotoManager.openSetting();
-      return [];
+      return Future.error(Exception('permission denied'));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.transparent,
+      color: const Color(0xffF8F9FB),
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
       child: FutureBuilder(
         future: _fetchAlbums(),
         builder: _builder,
@@ -58,25 +70,90 @@ class _PickerWidgetState extends State<PickerWidget> {
     if (snapshot.hasData) {
       final albums = snapshot.data!;
       if (albums.isEmpty) {
-        return const Opacity(
-          opacity: 0.4,
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+        return const Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.image_not_supported_outlined, size: 50),
+            SizedBox(height: 20),
+            Text('No assets found on this device.', style: TextStyle(fontSize: 20)),
+            SizedBox(height: 30),
+          ],
+        );
+      } else {
+        final defaultSelectedAlbum = albums.first;
+        Widget header = Header(
+            key: _headerController,
+            onBack: handleBackPress,
+            onDone: (data) async {
+              var result = await Conversion.toMediaList(data);
+              widget.onPicked(result);
+            },
+            mediaCount: widget.mediaCount,
+            albumController: _albumController,
+            selectedAlbum: _selectedAlbum ?? defaultSelectedAlbum);
+        return Column(
+          children: [
+            header,
+            Expanded(
+                child: Stack(
               children: [
-                Icon(Icons.image_not_supported_outlined, size: 50),
-                SizedBox(height: 20),
-                Text(
-                  'No Images Available',
-                  style: TextStyle(fontSize: 20),
+                Positioned.fill(
+                  child: MediaList(
+                    album: _selectedAlbum ?? defaultSelectedAlbum,
+                    onMediaTilePressed: _onMediaTilePressed,
+                    mediaCount: widget.mediaCount,
+                    mediaType: widget.mediaType,
+                    onDone: (data) async {
+                      widget.onPicked(data);
+                      Navigator.pop(context);
+                    },
+                  ),
                 ),
+                AlbumSelector(
+                  panelController: _albumController,
+                  albums: albums,
+                  onSelect: _onAlbumSelected,
+                )
               ],
-            ),
-          ),
+            ))
+          ],
         );
       }
     }
 
+    if (snapshot.hasError) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.image_not_supported_outlined, size: 60),
+          const SizedBox(height: 10),
+          const Text('Permission is not accessible', style: TextStyle(fontSize: 16)),
+          const SizedBox(height: 10, width: double.infinity),
+          TextButton(
+              onPressed: () => PhotoManager.openSetting().then((value) => Navigator.pop(context)),
+              child: const Text('Open Setting', style: TextStyle(fontSize: 14))),
+          const SizedBox(height: 30),
+        ],
+      );
+    }
     return const Center(child: CupertinoActivityIndicator());
+  }
+
+  void handleBackPress() {
+    if (_albumController.isPanelOpen) {
+      _albumController.close();
+    } else {
+      Navigator.pop(context);
+    }
+  }
+
+  void _onAlbumSelected(AssetPathEntity album) {
+    _headerController.currentState?.closeAlbumDrawer();
+    setState(() => _selectedAlbum = album);
+  }
+
+  Future _onMediaTilePressed(List<AssetEntity> selectedMedias) async {
+    _headerController.currentState?.updateSelection(selectedMedias);
   }
 }

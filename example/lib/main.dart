@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_picker/flutter_picker.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,10 +33,18 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  List<MediaModel> list = [];
 
   void _incrementCounter() {
-
-
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return PickerWidget(onPicked: (value) {
+            setState(() {
+              list = value;
+            });
+          });
+        });
   }
 
   @override
@@ -43,7 +54,11 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: const Center(),
+      body: Wrap(
+        children: List.generate(list.length, (index) {
+          return Image.memory(list[index].thumbnail!, width: 150, height: 150);
+        }),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
