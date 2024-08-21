@@ -52,9 +52,10 @@ class _MediaListState extends State<MediaList> {
     super.didUpdateWidget(oldWidget);
     _album = widget.album;
     final isRefresh = oldWidget.album.id != _album.id;
-    if (isRefresh) {
+    if (isRefresh ) {
       _fetchNewMedia();
     }
+
   }
 
   @override
@@ -80,7 +81,8 @@ class _MediaListState extends State<MediaList> {
               child: Container(
                 color: Colors.white,
                 alignment: Alignment.center,
-                child: const Icon(Icons.camera_alt_rounded, color: Color(0xffc7c7c7), size: 32),
+                child: const Image(
+                    image: AssetImage('packages/flutter_picker/assets/camera.png'), height: 34),
               ),
             );
           }
@@ -178,8 +180,7 @@ class _MediaListState extends State<MediaList> {
         }
       });
     } else {
-      showModalBottomSheet(context: context,
-          builder: (context) => _mediaFromCam());
+      showModalBottomSheet(context: context, builder: (context) => _mediaFromCam());
     }
   }
 

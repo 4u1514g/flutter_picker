@@ -70,14 +70,18 @@ class _PickerWidgetState extends State<PickerWidget> {
     if (snapshot.hasData) {
       final albums = snapshot.data!;
       if (albums.isEmpty) {
-        return const Column(
-          mainAxisSize: MainAxisSize.min,
+        return  Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.image_not_supported_outlined, size: 50),
-            SizedBox(height: 20),
-            Text('No assets found on this device.', style: TextStyle(fontSize: 20)),
-            SizedBox(height: 30),
+            GestureDetector(
+              // onTap: onCamera,
+              child: Container(
+                color: Colors.white,
+                alignment: Alignment.center,
+                child: const Image(
+                    image: AssetImage('packages/flutter_picker/assets/camera.png'), height: 32),
+              ),
+            )
           ],
         );
       } else {
@@ -126,13 +130,14 @@ class _PickerWidgetState extends State<PickerWidget> {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.image_not_supported_outlined, size: 60),
+          const Image(image: AssetImage('packages/flutter_picker/assets/photo.png'), height: 60),
           const SizedBox(height: 10),
-          const Text('Permission is not accessible', style: TextStyle(fontSize: 16)),
+          const Text('Không có quyền truy cập vào album', style: TextStyle(fontSize: 16,color: Color(0xff777777))),
           const SizedBox(height: 10, width: double.infinity),
           TextButton(
               onPressed: () => PhotoManager.openSetting().then((value) => Navigator.pop(context)),
-              child: const Text('Open Setting', style: TextStyle(fontSize: 14))),
+              child:
+                  const Text('Cài đặt', style: TextStyle(fontSize: 16, color: Colors.blue))),
           const SizedBox(height: 30),
         ],
       );
