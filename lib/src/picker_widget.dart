@@ -69,61 +69,44 @@ class _PickerWidgetState extends State<PickerWidget> {
   Widget _builder(BuildContext context, AsyncSnapshot<List<AssetPathEntity>> snapshot) {
     if (snapshot.hasData) {
       final albums = snapshot.data!;
-      if (albums.isEmpty) {
-        return  Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            GestureDetector(
-              // onTap: onCamera,
-              child: Container(
-                color: Colors.white,
-                alignment: Alignment.center,
-                child: const Image(
-                    image: AssetImage('packages/flutter_picker/assets/camera.png'), height: 32),
-              ),
-            )
-          ],
-        );
-      } else {
-        final defaultSelectedAlbum = albums.first;
-        Widget header = Header(
-            key: _headerController,
-            onBack: handleBackPress,
-            onDone: (data) async {
-              var result = await Conversion.toMediaList(data);
-              widget.onPicked(result);
-            },
-            mediaCount: widget.mediaCount,
-            albumController: _albumController,
-            selectedAlbum: _selectedAlbum ?? defaultSelectedAlbum);
-        return Column(
-          children: [
-            header,
-            Expanded(
-                child: Stack(
-              children: [
-                Positioned.fill(
-                  child: MediaList(
-                    album: _selectedAlbum ?? defaultSelectedAlbum,
-                    onMediaTilePressed: _onMediaTilePressed,
-                    mediaCount: widget.mediaCount,
-                    mediaType: widget.mediaType,
-                    onDone: (data) async {
-                      widget.onPicked(data);
-                      Navigator.pop(context);
-                    },
-                  ),
+      final defaultSelectedAlbum = albums.firstOrNull ?? AssetPathEntity(id: '', name: 'Recent');
+      Widget header = Header(
+          key: _headerController,
+          onBack: handleBackPress,
+          onDone: (data) async {
+            var result = await Conversion.toMediaList(data);
+            widget.onPicked(result);
+          },
+          mediaCount: widget.mediaCount,
+          albumController: _albumController,
+          selectedAlbum: _selectedAlbum ?? defaultSelectedAlbum);
+      return Column(
+        children: [
+          header,
+          Expanded(
+              child: Stack(
+            children: [
+              Positioned.fill(
+                child: MediaList(
+                  album: _selectedAlbum ?? defaultSelectedAlbum,
+                  onMediaTilePressed: _onMediaTilePressed,
+                  mediaCount: widget.mediaCount,
+                  mediaType: widget.mediaType,
+                  onDone: (data) async {
+                    widget.onPicked(data);
+                    Navigator.pop(context);
+                  },
                 ),
-                AlbumSelector(
-                  panelController: _albumController,
-                  albums: albums,
-                  onSelect: _onAlbumSelected,
-                )
-              ],
-            ))
-          ],
-        );
-      }
+              ),
+              AlbumSelector(
+                panelController: _albumController,
+                albums: albums,
+                onSelect: _onAlbumSelected,
+              )
+            ],
+          ))
+        ],
+      );
     }
 
     if (snapshot.hasError) {
@@ -132,12 +115,12 @@ class _PickerWidgetState extends State<PickerWidget> {
         children: [
           const Image(image: AssetImage('packages/flutter_picker/assets/photo.png'), height: 60),
           const SizedBox(height: 10),
-          const Text('Không có quyền truy cập vào album', style: TextStyle(fontSize: 16,color: Color(0xff777777))),
+          const Text('Không có quyền truy cập vào album',
+              style: TextStyle(fontSize: 15, color: Color(0xff777777))),
           const SizedBox(height: 10, width: double.infinity),
           TextButton(
               onPressed: () => PhotoManager.openSetting().then((value) => Navigator.pop(context)),
-              child:
-                  const Text('Cài đặt', style: TextStyle(fontSize: 16, color: Colors.blue))),
+              child: const Text('Cài đặt', style: TextStyle(fontSize: 15, color: Colors.blue))),
           const SizedBox(height: 30),
         ],
       );

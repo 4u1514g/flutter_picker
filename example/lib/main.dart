@@ -39,7 +39,9 @@ class _MyHomePageState extends State<MyHomePage> {
     showModalBottomSheet(
         context: context,
         builder: (context) {
-          return PickerWidget(onPicked: (value) {
+          return PickerWidget(
+              mediaType: MediaType.all,
+              onPicked: (value) {
             setState(() {
               list = value;
             });

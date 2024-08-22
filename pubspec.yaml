@@ -30,4 +30,5 @@ flutter:
 
   assets:
     - packages/flutter_picker/assets/camera.png
+    - packages/flutter_picker/assets/camera add.png
     - packages/flutter_picker/assets/photo.png

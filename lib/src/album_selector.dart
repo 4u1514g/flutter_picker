@@ -65,16 +65,12 @@ class AlbumTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
-            width: 80,
-            height: 80,
-            child: FutureBuilder(future: _getAlbumThumb(album), builder: _builder),
-          ),
+              padding: const EdgeInsets.all(10),
+              width: 80,
+              height: 80,
+              child: FutureBuilder(future: _getAlbumThumb(album), builder: _builder)),
           const SizedBox(width: 10),
-          Text(
-            album.name,
-            style: const TextStyle(color: Colors.black, fontSize: 18),
-          ),
+          Text(album.name, style: const TextStyle(color: Colors.black, fontSize: 18)),
           const SizedBox(width: 5),
           FutureBuilder(future: album.assetCountAsync, builder: _assetCountBuilder),
         ],
@@ -82,31 +78,17 @@ class AlbumTile extends StatelessWidget {
     );
   }
 
-  Widget _assetCountBuilder(
-    BuildContext context,
-    AsyncSnapshot<int> snapshot,
-  ) {
+  Widget _assetCountBuilder(BuildContext context, AsyncSnapshot<int> snapshot) {
     return Text(
       '${snapshot.data ?? 0}',
-      style: TextStyle(
-        color: Colors.grey.shade600,
-        fontSize: 12,
-        fontWeight: FontWeight.w400,
-      ),
+      style: TextStyle(color: Colors.grey.shade600, fontSize: 12, fontWeight: FontWeight.w400),
     );
   }
 
-  Widget _builder(
-    BuildContext context,
-    AsyncSnapshot<Uint8List?> snapshot,
-  ) {
+  Widget _builder(BuildContext context, AsyncSnapshot<Uint8List?> snapshot) {
     if (snapshot.hasError) {
       return Center(
-        child: Icon(
-          Icons.error_outline,
-          color: Colors.grey.shade400,
-          size: 40,
-        ),
+        child: Icon(Icons.error_outline, color: Colors.grey.shade400, size: 40),
       );
     }
 
@@ -115,19 +97,12 @@ class AlbumTile extends StatelessWidget {
 
       if (albumThumb == null) {
         return Center(
-          child: Icon(
-            Icons.error_outline,
-            color: Colors.grey.shade400,
-            size: 40,
-          ),
+          child: Icon(Icons.error_outline, color: Colors.grey.shade400, size: 40),
         );
       } else {
         return ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          child: Image.memory(
-            albumThumb,
-            fit: BoxFit.cover,
-          ),
+          child: Image.memory(albumThumb, fit: BoxFit.cover),
         );
       }
     } else {

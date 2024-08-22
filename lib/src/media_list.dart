@@ -1,11 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter_picker/src/camera_tile.dart';
 import 'package:flutter_picker/src/enums.dart';
-import 'package:flutter_picker/src/image_item_widget.dart';
+import 'package:flutter_picker/src/media_item_tile.dart';
 import 'package:flutter_picker/src/media_model.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 class MediaList extends StatefulWidget {
@@ -52,53 +49,65 @@ class _MediaListState extends State<MediaList> {
     super.didUpdateWidget(oldWidget);
     _album = widget.album;
     final isRefresh = oldWidget.album.id != _album.id;
-    if (isRefresh ) {
+    if (isRefresh && _album.id.isEmpty) {
       _fetchNewMedia();
     }
-
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
+    if (_isLoading && _album.id.isNotEmpty) {
       return const Center(child: CupertinoActivityIndicator());
     }
 
     bool z = MediaQuery.of(context).size.shortestSide < 400;
-    return GridView.builder(
-        controller: widget.scrollController,
-        itemCount: _mediaList.length + 1,
-        padding: const EdgeInsets.symmetric(horizontal: 5),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: z ? 3 : 4, crossAxisSpacing: 5, mainAxisSpacing: 5),
-        itemBuilder: (_, index) {
-          if (index == _mediaList.length - 8 && !_isLoadingMore && _hasMoreToLoad) {
-            _loadMoreAsset();
-          }
-          if (index == 0) {
-            return GestureDetector(
-              onTap: onCamera,
-              child: Container(
-                color: Colors.white,
-                alignment: Alignment.center,
-                child: const Image(
-                    image: AssetImage('packages/flutter_picker/assets/camera.png'), height: 34),
-              ),
-            );
-          }
+    return Column(
+      children: [
+        Expanded(
+            child: GridView.builder(
+                controller: widget.scrollController,
+                itemCount: _mediaList.length + 1,
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: z ? 3 : 4, crossAxisSpacing: 5, mainAxisSpacing: 5),
+                itemBuilder: (_, index) {
+                  if (index == _mediaList.length - 8 && !_isLoadingMore && _hasMoreToLoad) {
+                    _loadMoreAsset();
+                  }
+                  if (index == 0) {
+                    return CameraTile(mediaType: widget.mediaType, onDone: widget.onDone);
+                  }
 
-          final AssetEntity entity = _mediaList[index - 1];
-          return ImageItemWidget(
-            onTap: () {
-              _onMediaTileSelected(_isPreviouslySelected(entity), entity);
-            },
-            key: ValueKey<int>(index - 1),
-            entity: entity,
-            option: const ThumbnailOption(size: ThumbnailSize.square(200)),
-            index: _getSelectionIndex(entity),
-            isSelected: _isPreviouslySelected(entity),
-          );
-        });
+                  final AssetEntity entity = _mediaList[index - 1];
+                  return MediaItemTile(
+                    onTap: () {
+                      _onMediaTileSelected(_isPreviouslySelected(entity), entity);
+                    },
+                    key: ValueKey<int>(index - 1),
+                    entity: entity,
+                    option: const ThumbnailOption(size: ThumbnailSize.square(200)),
+                    index: _getSelectionIndex(entity),
+                    isSelected: _isPreviouslySelected(entity),
+                  );
+                })),
+        if( _album.id.isEmpty)
+        Column(
+          children: [
+            const SizedBox(height: 50),
+            const Image(
+                image: AssetImage('packages/flutter_picker/assets/camera add.png'), height: 55),
+            const SizedBox(height: 10),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Text('Bạn có thể sử dụng camera để chụp ảnh\nhoặc quay video',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 15, color: Color(0xff777777), height: 1.5)),
+            ),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.25),
+          ],
+        )
+      ],
+    );
   }
 
   void _fetchNewMedia() async {
@@ -160,95 +169,5 @@ class _MediaListState extends State<MediaList> {
       }
     }
     widget.onMediaTilePressed(_selectedMedias);
-  }
-
-  final picker = ImagePicker();
-
-  void onCamera() {
-    if (widget.mediaType == MediaType.image) {
-      picker.pickImage(source: ImageSource.camera).then((pickedFile) async {
-        if (pickedFile != null) {
-          final converted = MediaModel(
-            id: UniqueKey().toString(),
-            thumbnail: await pickedFile.readAsBytes(),
-            creationTime: DateTime.now(),
-            mediaByte: await pickedFile.readAsBytes(),
-            title: 'capturedImage',
-            file: File(pickedFile.path),
-          );
-          widget.onDone([converted]);
-        }
-      });
-    } else {
-      showModalBottomSheet(context: context, builder: (context) => _mediaFromCam());
-    }
-  }
-
-  _mediaFromCam() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        GestureDetector(
-          onTap: () {
-            picker.pickImage(source: ImageSource.camera).then((pickedFile) async {
-              if (pickedFile != null) {
-                Navigator.pop(context);
-                final converted = MediaModel(
-                  id: UniqueKey().toString(),
-                  thumbnail: await pickedFile.readAsBytes(),
-                  creationTime: DateTime.now(),
-                  mediaByte: await pickedFile.readAsBytes(),
-                  title: 'capturedImage',
-                  file: File(pickedFile.path),
-                );
-                widget.onDone([converted]);
-              }
-            });
-          },
-          child: Container(
-            height: 50,
-            color: Colors.white,
-            alignment: Alignment.center,
-            child: const Text('Chụp ảnh', style: TextStyle(fontSize: 14)),
-          ),
-        ),
-        Container(height: 1, color: const Color(0xffF8F9FB)),
-        GestureDetector(
-          onTap: () {
-            picker.pickVideo(source: ImageSource.camera).then((pickedFile) async {
-              if (pickedFile != null) {
-                Navigator.pop(context);
-                final converted = MediaModel(
-                  id: UniqueKey().toString(),
-                  thumbnail: await pickedFile.readAsBytes(),
-                  creationTime: DateTime.now(),
-                  mediaByte: await pickedFile.readAsBytes(),
-                  title: 'capturedImage',
-                  file: File(pickedFile.path),
-                );
-                widget.onDone([converted]);
-              }
-            });
-          },
-          child: Container(
-            height: 50,
-            color: Colors.white,
-            alignment: Alignment.center,
-            child: const Text('Quay video', style: TextStyle(fontSize: 14)),
-          ),
-        ),
-        Container(height: 5, color: const Color(0xffF8F9FB)),
-        GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: Container(
-            height: 50,
-            color: Colors.white,
-            alignment: Alignment.center,
-            child: const Text('Đóng', style: TextStyle(fontSize: 14)),
-          ),
-        ),
-      ],
-    );
   }
 }
