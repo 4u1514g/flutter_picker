@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_picker/src/album_selector.dart';
@@ -5,6 +7,7 @@ import 'package:flutter_picker/src/conversion.dart';
 import 'package:flutter_picker/src/header.dart';
 import 'package:flutter_picker/src/media_list.dart';
 import 'package:flutter_picker/src/media_model.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -143,5 +146,31 @@ class _PickerWidgetState extends State<PickerWidget> {
 
   Future _onMediaTilePressed(List<AssetEntity> selectedMedias) async {
     _headerController.currentState?.updateSelection(selectedMedias);
+  }
+}
+
+///call this function to capture and get media from camera
+void openCamera({
+  ///callback when capturing is done
+  required ValueChanged<MediaModel> onCapture,
+  CameraDevice preferredCameraDevice = CameraDevice.rear,
+}) async {
+  final picker = ImagePicker();
+  final pickedFile = await picker.pickImage(
+    source: ImageSource.camera,
+    preferredCameraDevice: preferredCameraDevice,
+  );
+
+  if (pickedFile != null) {
+    final converted = MediaModel(
+      id: UniqueKey().toString(),
+      thumbnail: await pickedFile.readAsBytes(),
+      creationTime: DateTime.now(),
+      mediaByte: await pickedFile.readAsBytes(),
+      title: 'capturedImage',
+      file: File(pickedFile.path),
+    );
+
+    onCapture(converted);
   }
 }

@@ -36,17 +36,9 @@ class _MyHomePageState extends State<MyHomePage> {
   List<MediaModel> list = [];
 
   void _incrementCounter() {
-    showModalBottomSheet(
-        context: context,
-        builder: (context) {
-          return PickerWidget(
-              mediaType: MediaType.all,
-              onPicked: (value) {
-            setState(() {
-              list = value;
-            });
-          });
-        });
+    openCamera(onCapture: (value) {
+      print(value);
+    });
   }
 
   @override
