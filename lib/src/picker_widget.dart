@@ -157,6 +157,8 @@ void openCamera({
 }) async {
   final picker = ImagePicker();
   final pickedFile = await picker.pickImage(
+    maxWidth:1080,
+    maxHeight:1080  
     source: ImageSource.camera,
     preferredCameraDevice: preferredCameraDevice,
   );
