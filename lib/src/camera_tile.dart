@@ -37,8 +37,8 @@ class _CameraTileState extends State<CameraTile> {
   void openCamera() {
     if (widget.mediaType == MediaType.image) {
       picker.pickImage(
-          maxHeight: 1060,
-          maxWidth: 1060,
+          maxHeight: 1080,
+          maxWidth: 1080,
           source: ImageSource.camera).then((pickedFile) async {
         if (pickedFile != null) {
           final converted = MediaModel(
@@ -65,8 +65,8 @@ class _CameraTileState extends State<CameraTile> {
         GestureDetector(
           onTap: () {
             picker.pickImage(
-                maxHeight: 1060,
-                maxWidth: 1060,
+                maxHeight: 1080,
+                maxWidth: 1080,
                 source: ImageSource.camera).then((pickedFile) async {
               if (pickedFile != null) {
                 Navigator.pop(context);
