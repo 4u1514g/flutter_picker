@@ -37,70 +37,17 @@ class MediaItemTile extends StatelessWidget {
             fit: BoxFit.cover,
           ),
         ),
-        PositionedDirectional(
-          bottom: 4,
-          start: 0,
-          end: 0,
-          child: Row(
-            children: [
-              if (entity.isFavorite)
-                Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.favorite,
-                    color: Colors.redAccent,
-                    size: 16,
-                  ),
-                ),
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (entity.isLivePhoto)
-                      Container(
-                        margin: const EdgeInsetsDirectional.only(end: 4),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 3,
-                          vertical: 1,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(4),
-                          ),
-                          color: Theme.of(context).cardColor,
-                        ),
-                        child: const Text(
-                          'LIVE',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            height: 1,
-                          ),
-                        ),
-                      ),
-                    Icon(() {
-                      switch (entity.type) {
-                        case AssetType.other:
-                          return Icons.abc;
-                        case AssetType.image:
-                          return Icons.image;
-                        case AssetType.video:
-                          return Icons.video_file;
-                        case AssetType.audio:
-                          return Icons.audiotrack;
-                      }
-                    }(), color: Colors.white, size: 16),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+        if (entity.type == AssetType.video)
+          Positioned(
+              bottom: 2,
+              right: 2,
+              child: Container(
+                decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.5), borderRadius: BorderRadius.circular(5)),
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                child: Text(_duration(entity.duration),
+                    style: const TextStyle(color: Colors.white, fontSize: 11)),
+              )),
         if (isSelected)
           Positioned(
               top: 3,
@@ -127,5 +74,12 @@ class MediaItemTile extends StatelessWidget {
       onTap: onTap,
       child: buildContent(context),
     );
+  }
+
+  String _duration(int duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitMinutes = twoDigits((duration ~/ 60).remainder(60));
+    String twoDigitSeconds = twoDigits(duration.remainder(60));
+    return "$twoDigitMinutes:$twoDigitSeconds";
   }
 }

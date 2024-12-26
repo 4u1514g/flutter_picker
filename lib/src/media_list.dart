@@ -67,9 +67,9 @@ class _MediaListState extends State<MediaList> {
             child: GridView.builder(
                 controller: widget.scrollController,
                 itemCount: _mediaList.length + 1,
-                padding: const EdgeInsets.symmetric(horizontal: 5),
+                padding: const EdgeInsets.symmetric(horizontal: 4),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: z ? 3 : 4, crossAxisSpacing: 5, mainAxisSpacing: 5),
+                    crossAxisCount: z ? 3 : 4, crossAxisSpacing: 4, mainAxisSpacing: 4),
                 itemBuilder: (_, index) {
                   if (index == _mediaList.length - 8 && !_isLoadingMore && _hasMoreToLoad) {
                     _loadMoreAsset();

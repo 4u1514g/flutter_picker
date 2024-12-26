@@ -42,10 +42,10 @@ class _MyHomePageState extends State<MyHomePage> {
           return PickerWidget(
               mediaType: MediaType.all,
               onPicked: (value) {
-            setState(() {
-              list = value;
-            });
-          });
+                setState(() {
+                  list = value;
+                });
+              });
         });
   }
 
@@ -58,7 +58,13 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Wrap(
         children: List.generate(list.length, (index) {
-          return Image.memory(list[index].thumbnail!, width: 150, height: 150);
+          return Row(
+            children: [
+              Image.memory(list[index].thumbnail!, width: 150, height: 150),
+              const SizedBox(width: 10),
+              Image.file(list[index].file!, width: 150, height: 150)
+            ],
+          );
         }),
       ),
       floatingActionButton: FloatingActionButton(

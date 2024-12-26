@@ -36,7 +36,10 @@ class _CameraTileState extends State<CameraTile> {
 
   void openCamera() {
     if (widget.mediaType == MediaType.image) {
-      picker.pickImage(source: ImageSource.camera).then((pickedFile) async {
+      picker.pickImage(
+          maxHeight: 1060,
+          maxWidth: 1060,
+          source: ImageSource.camera).then((pickedFile) async {
         if (pickedFile != null) {
           final converted = MediaModel(
             id: UniqueKey().toString(),
@@ -61,7 +64,10 @@ class _CameraTileState extends State<CameraTile> {
       children: [
         GestureDetector(
           onTap: () {
-            picker.pickImage(source: ImageSource.camera).then((pickedFile) async {
+            picker.pickImage(
+                maxHeight: 1060,
+                maxWidth: 1060,
+                source: ImageSource.camera).then((pickedFile) async {
               if (pickedFile != null) {
                 Navigator.pop(context);
                 final converted = MediaModel(
@@ -86,7 +92,9 @@ class _CameraTileState extends State<CameraTile> {
         Container(height: 1, color: const Color(0xffF8F9FB)),
         GestureDetector(
           onTap: () {
-            picker.pickVideo(source: ImageSource.camera).then((pickedFile) async {
+            picker.pickVideo(
+
+                source: ImageSource.camera).then((pickedFile) async {
               if (pickedFile != null) {
                 Navigator.pop(context);
                 final converted = MediaModel(
