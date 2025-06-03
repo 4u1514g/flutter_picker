@@ -35,7 +35,7 @@ class HeaderState extends State<Header> with TickerProviderStateMixin {
   );
 
   late final _arrowAnimation =
-      Tween<double>(begin: _arrowDown, end: _arrowUp).animate(_arrowAnimController);
+  Tween<double>(begin: _arrowDown, end: _arrowUp).animate(_arrowAnimController);
 
   void updateSelection(List<AssetEntity> selectedMediaList) {
     if (widget.mediaCount == MediaCount.multiple) {
@@ -72,18 +72,22 @@ class HeaderState extends State<Header> with TickerProviderStateMixin {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(widget.selectedAlbum.name, key: ValueKey<String>(widget.selectedAlbum.id)),
+          Text(widget.selectedAlbum.name == 'Recent' ? 'Gần đây' : widget.selectedAlbum.name,
+              key: ValueKey<String>(widget.selectedAlbum.id)),
           const SizedBox(width: 2),
           AnimatedBuilder(
             animation: _arrowAnimation,
-            builder: (context, child) => Transform.rotate(
-              angle: _arrowAnimation.value * pi,
-              child: Icon(
-                Icons.keyboard_arrow_down,
-                size: 20,
-                color: Theme.of(context).primaryColor,
-              ),
-            ),
+            builder: (context, child) =>
+                Transform.rotate(
+                  angle: _arrowAnimation.value * pi,
+                  child: Icon(
+                    Icons.keyboard_arrow_down,
+                    size: 20,
+                    color: Theme
+                        .of(context)
+                        .primaryColor,
+                  ),
+                ),
           ),
         ],
       ),

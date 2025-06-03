@@ -10,9 +10,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  photo_manager: ^3.6.4
-  photo_manager_image_provider: ^2.2.0
-  image_picker: ^1.1.2
+  photo_manager: any
+  photo_manager_image_provider: any
+  image_picker: any
   sliding_up_panel: ^2.0.0+1
 
 dev_dependencies:
