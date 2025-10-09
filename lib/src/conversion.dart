@@ -40,28 +40,44 @@ class Conversion {
     return results;
   }
 
-  static Future<File?> compressImageSmart(File file, {int maxSizeInBytes =
-      1024 * 1024}) async {
+  static Future<File?> compressImageSmart(File file,
+      {int maxSizeInBytes = 1024 * 1024}) async {
     final tempDir = await getTemporaryDirectory();
-    final targetPath = p.join(tempDir.path, 'compressed_${p.basename(file.path)}');
 
     int quality = 90;
     int minWidth = 1920;
     int minHeight = 1920;
 
-    File? result = file;
+    File result = file;
+    List<File> tempFiles = [];
+
     while (true) {
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final targetPath = p.join(
+        tempDir.path,
+        'compressed_${timestamp}_${p.basename(file.path)}',
+      );
+
       final compressed = await FlutterImageCompress.compressAndGetFile(
-        result!.absolute.path,
+        result.path,
         targetPath,
         quality: quality,
         minWidth: minWidth,
         minHeight: minHeight,
       );
 
-      final size = await compressed!.length();
+      if (compressed == null) {
+        _cleanupTempFiles(tempFiles);
+        return result;
+      }
+
+      tempFiles.add(File(compressed.path));
+
+      final size = await compressed.length();
 
       if (size <= maxSizeInBytes || quality <= 30) {
+        tempFiles.removeLast();
+        _cleanupTempFiles(tempFiles);
         return File(compressed.path);
       }
 
@@ -69,6 +85,14 @@ class Conversion {
       minWidth = (minWidth * 0.9).toInt();
       minHeight = (minHeight * 0.9).toInt();
       result = File(compressed.path);
+    }
+  }
+
+  static void _cleanupTempFiles(List<File> files) {
+    for (final file in files) {
+      if (file.existsSync()) {
+        file.deleteSync();
+      }
     }
   }
 }
