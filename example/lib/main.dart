@@ -37,16 +37,26 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _incrementCounter() {
     showModalBottomSheet(
-        context: context,
-        builder: (context) {
-          return PickerWidget(
-              mediaType: MediaType.all,
-              onPicked: (value) {
-                setState(() {
-                  list = value;
-                });
-              });
-        });
+      context: context,
+      builder: (context) {
+        return PickerWidget(
+          onPicked: (value)async {
+            setState(() {
+              list = value;
+            });
+
+            final length = await value.first.file!.length(); // tính theo byte
+            print('Kích thước file: $length bytes');
+
+            // Nếu muốn đổi sang KB hoặc MB
+            final kb = length / 1024;
+            final mb = kb / 1024;
+            print('≈ ${kb.toStringAsFixed(2)} KB');
+            print('≈ ${mb.toStringAsFixed(2)} MB');
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -62,7 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               Image.memory(list[index].thumbnail!, width: 150, height: 150),
               const SizedBox(width: 10),
-              Image.file(list[index].file!, width: 150, height: 150)
+              Image.file(list[index].file!, width: 150, height: 150),
             ],
           );
         }),
