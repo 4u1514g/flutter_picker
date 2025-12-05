@@ -40,7 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
       context: context,
       builder: (context) {
         return PickerWidget(
-          onPicked: (value)async {
+          onPicked: (value) async {
             setState(() {
               list = value;
             });
@@ -66,16 +66,18 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Wrap(
-        children: List.generate(list.length, (index) {
-          return Row(
-            children: [
-              Image.memory(list[index].thumbnail!, width: 150, height: 150),
-              const SizedBox(width: 10),
-              Image.file(list[index].file!, width: 150, height: 150),
-            ],
-          );
-        }),
+      body: SingleChildScrollView(
+        child: Wrap(
+          children: List.generate(
+            list.length,
+            (index) => Row(
+              children: [
+                Image.memory(list[index].thumbnail!, width: 150, height: 150),
+                Image.file(list[index].file!, width: 150, height: 150),
+              ],
+            ),
+          ),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
